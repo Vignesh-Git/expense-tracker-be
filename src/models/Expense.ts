@@ -7,13 +7,15 @@ export interface IExpense extends Document {
   description: string;
   date: Date;
   paymentMethod: 'cash' | 'card' | 'bank_transfer' | 'digital_wallet' | 'other';
-  location?: string;
-  tags?: string[];
   isRecurring: boolean;
   recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
   attachments?: string[]; // URLs to uploaded files
   createdAt: Date;
   updatedAt: Date;
+  approval: {
+    status: 'requested' | 'approved' | 'denied';
+    description: string;
+  };
 }
 
 const ExpenseSchema = new Schema<IExpense>({
@@ -49,16 +51,6 @@ const ExpenseSchema = new Schema<IExpense>({
     enum: ['cash', 'card', 'bank_transfer', 'digital_wallet', 'other'],
     default: 'cash' 
   },
-  location: { 
-    type: String, 
-    trim: true,
-    maxlength: 200 
-  },
-  tags: [{ 
-    type: String, 
-    trim: true,
-    maxlength: 50 
-  }],
   isRecurring: { 
     type: Boolean, 
     default: false 
@@ -69,7 +61,19 @@ const ExpenseSchema = new Schema<IExpense>({
   },
   attachments: [{ 
     type: String 
-  }]
+  }],
+  approval: {
+    status: {
+      type: String,
+      enum: ['requested', 'approved', 'denied'],
+      default: 'requested',
+      required: true
+    },
+    description: {
+      type: String,
+      default: ''
+    }
+  }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

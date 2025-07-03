@@ -138,8 +138,6 @@ export const createExpense = async (req: Request, res: Response): Promise<void> 
       description, 
       date, 
       paymentMethod, 
-      location, 
-      tags, 
       isRecurring, 
       recurringFrequency 
     } = req.body;
@@ -171,10 +169,13 @@ export const createExpense = async (req: Request, res: Response): Promise<void> 
       description,
       date: date || new Date(),
       paymentMethod: paymentMethod || 'cash',
-      location,
-      tags,
       isRecurring: isRecurring || false,
-      recurringFrequency
+      recurringFrequency,
+      // Approval field: always set to requested on creation
+      approval: {
+        status: 'requested',
+        description: ''
+      }
     });
 
     await expense.save();
