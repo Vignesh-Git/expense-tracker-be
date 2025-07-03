@@ -117,6 +117,9 @@ router.use(passport.authenticate('jwt', { session: false }));
 // GET /expenses - Get all expenses with filtering and pagination
 router.get('/', getExpenses);
 
+// GET /expenses/analytics - Get expense analytics and statistics
+router.get('/analytics', getExpenseAnalytics);
+
 // GET /expenses/:id - Get a single expense by ID
 router.get('/:id', getExpenseById);
 
@@ -128,8 +131,5 @@ router.put('/:id', updateExpense);
 
 // DELETE /expenses/:id - Delete an expense
 router.delete('/:id', deleteExpense);
-
-// GET /expenses/analytics - Get expense analytics and statistics
-router.get('/analytics', getExpenseAnalytics);
 
 export default router; 
