@@ -1,0 +1,76 @@
+import mongoose, { Document, Schema, Types } from 'mongoose';
+
+export interface ICategory extends Document {
+  user: Types.ObjectId;
+  name: string;
+  color: string;
+  icon: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const CategorySchema = new Schema<ICategory>({
+  user: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true,
+    index: true 
+  },
+  name: { 
+    type: String, 
+    required: true,
+    trim: true,
+    maxlength: 50 
+  },
+  color: { 
+    type: String, 
+    required: true,
+    default: '#2196f3',
+    validate: {
+      validator: function(v: string) {
+        return /^#[0-9A-F]{6}$/i.test(v);
+      },
+      message: 'Color must be a valid hex color code'
+    }
+  },
+  icon: { 
+    type: String, 
+    required: true,
+    default: 'pi pi-tag',
+    maxlength: 100 
+  },
+  isDefault: { 
+    type: Boolean, 
+    default: false 
+  },
+  isActive: { 
+    type: Boolean, 
+    default: true 
+  }
+}, {
+  timestamps: true
+});
+
+// Indexes for better query performance
+CategorySchema.index({ user: 1, isActive: 1 });
+CategorySchema.index({ user: 1, name: 1 }, { unique: true });
+
+// Pre-save middleware to ensure unique category names per user
+CategorySchema.pre('save', async function(next) {
+  if (this.isModified('name')) {
+    const existingCategory = await mongoose.model('Category').findOne({
+      user: this.user,
+      name: this.name,
+      _id: { $ne: this._id }
+    });
+    
+    if (existingCategory) {
+      return next(new Error('Category name already exists for this user'));
+    }
+  }
+  next();
+});
+
+export default mongoose.model<ICategory>('Category', CategorySchema); 

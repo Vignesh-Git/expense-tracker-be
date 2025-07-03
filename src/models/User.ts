@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface IUser extends Document {
   email: string;
@@ -7,6 +7,7 @@ export interface IUser extends Document {
   role: 'user' | 'admin';
   googleId?: string;
   createdAt: Date;
+  profileImageId?: Types.ObjectId; // GridFS file id
 }
 
 const UserSchema = new Schema<IUser>({
@@ -16,6 +17,7 @@ const UserSchema = new Schema<IUser>({
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   googleId: { type: String },
   createdAt: { type: Date, default: Date.now },
+  profileImageId: { type: Schema.Types.ObjectId, ref: 'fs.files', default: null },
 });
 
 export default mongoose.model<IUser>('User', UserSchema); 
