@@ -9,6 +9,38 @@ import {
   createDefaultCategories
 } from '../controllers/categoryController';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Category:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Category ID
+ *         user:
+ *           type: string
+ *           description: User ID
+ *         name:
+ *           type: string
+ *           description: Category name
+ *         color:
+ *           type: string
+ *           description: Category color (hex)
+ *         icon:
+ *           type: string
+ *           description: PrimeIcons class for the category
+ *         isActive:
+ *           type: boolean
+ *           description: Whether the category is active
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ */
 const router = express.Router();
 
 // Apply authentication middleware to all routes

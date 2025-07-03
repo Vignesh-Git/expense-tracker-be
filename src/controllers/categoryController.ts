@@ -77,7 +77,6 @@ export const createCategory = async (req: Request, res: Response): Promise<void>
       name,
       color,
       icon: icon || 'pi pi-tag',
-      isDefault: false,
       isActive: true
     });
 
@@ -160,12 +159,6 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Check if it's a default category
-    if (category.isDefault) {
-      res.status(400).json({ message: 'Cannot delete default category' });
-      return;
-    }
-
     // Soft delete by setting isActive to false
     await Category.findByIdAndUpdate(id, { isActive: false });
 
@@ -197,20 +190,12 @@ export const createDefaultCategories = async (req: Request, res: Response): Prom
       { name: 'Travel', color: '#F7DC6F', icon: 'pi pi-globe' }
     ];
 
-    // Check if user already has categories
-    const existingCategories = await Category.countDocuments({ user: userId });
-    if (existingCategories > 0) {
-      res.status(400).json({ message: 'User already has categories' });
-      return;
-    }
-
     // Create default categories
     const categories = defaultCategories.map(cat => ({
       user: userId,
       name: cat.name,
       color: cat.color,
       icon: cat.icon,
-      isDefault: true,
       isActive: true
     }));
 

@@ -5,7 +5,6 @@ export interface ICategory extends Document {
   name: string;
   color: string;
   icon: string;
-  isDefault: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -41,10 +40,6 @@ const CategorySchema = new Schema<ICategory>({
     default: 'pi pi-tag',
     maxlength: 100 
   },
-  isDefault: { 
-    type: Boolean, 
-    default: false 
-  },
   isActive: { 
     type: Boolean, 
     default: true 
@@ -55,7 +50,10 @@ const CategorySchema = new Schema<ICategory>({
 
 // Indexes for better query performance
 CategorySchema.index({ user: 1, isActive: 1 });
-CategorySchema.index({ user: 1, name: 1 }, { unique: true });
+CategorySchema.index(
+  { user: 1, name: 1, isActive: 1 },
+  { unique: true, partialFilterExpression: { isActive: true } }
+);
 
 // Pre-save middleware to ensure unique category names per user
 CategorySchema.pre('save', async function(next) {
