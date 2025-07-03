@@ -1,14 +1,24 @@
 import { Request, Response } from 'express';
 import Category from '../models/Category';
+import { IUser } from '../models/User';
+
+interface AuthRequest extends Request {
+  user?: IUser & { _id: string; role: 'user' | 'admin' };
+}
 
 /**
  * Get all categories for the authenticated user
  * @param req - Express request object
  * @param res - Express response object
  */
-export const getCategories = async (req: Request, res: Response): Promise<void> => {
+export const getCategories = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const categories = await Category.find({ isActive: true }).sort({ name: 1 }).lean();
+    const user = req.user;
+    
+    // Admins see all categories, users see only active ones
+    const filter = user?.role === 'admin' ? {} : { isActive: true };
+    
+    const categories = await Category.find(filter).sort({ name: 1 }).lean();
     res.json(categories);
   } catch (error) {
     console.error('Get categories error:', error);
@@ -21,10 +31,9 @@ export const getCategories = async (req: Request, res: Response): Promise<void> 
  * @param req - Express request object
  * @param res - Express response object
  */
-export const getCategoryById = async (req: Request, res: Response): Promise<void> => {
+export const getCategoryById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // @ts-ignore - user is added by passport middleware
-    const userId = req.user._id;
+    const userId = req.user?._id;
     const { id } = req.params;
 
     const category = await Category.findOne({ _id: id, user: userId }).lean();
@@ -46,32 +55,37 @@ export const getCategoryById = async (req: Request, res: Response): Promise<void
  * @param req - Express request object
  * @param res - Express response object
  */
-export const createCategory = async (req: Request, res: Response): Promise<void> => {
+export const createCategory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // @ts-ignore
-    if (req.user?.role !== 'admin') {
-      res.status(403).json({ message: 'Forbidden: Admins only' });
-      return;
-    }
+    const user = req.user;
     const { name, color, icon } = req.body;
+    
     if (!name || !color) {
       res.status(400).json({ message: 'Name and color are required' });
       return;
     }
+
+    // Check if category name already exists
     const existingCategory = await Category.findOne({ name });
     if (existingCategory) {
       res.status(400).json({ message: 'Category name already exists' });
       return;
     }
+
+    // Determine if category should be active based on user role
+    const isActive = user?.role === 'admin';
+
     const category = new Category({
       name,
       color,
       icon: icon || 'pi pi-tag',
-      isActive: true
+      isActive
     });
+    
     await category.save();
+    
     res.status(201).json({
-      message: 'Category created successfully',
+      message: isActive ? 'Category created successfully' : 'Category request created successfully',
       category
     });
   } catch (error) {
@@ -85,10 +99,9 @@ export const createCategory = async (req: Request, res: Response): Promise<void>
  * @param req - Express request object
  * @param res - Express response object
  */
-export const updateCategory = async (req: Request, res: Response): Promise<void> => {
+export const updateCategory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // @ts-ignore - user is added by passport middleware
-    const userId = req.user._id;
+    const userId = req.user?._id;
     const { id } = req.params;
     const updateData = req.body;
 
@@ -134,10 +147,9 @@ export const updateCategory = async (req: Request, res: Response): Promise<void>
  * @param req - Express request object
  * @param res - Express response object
  */
-export const deleteCategory = async (req: Request, res: Response): Promise<void> => {
+export const deleteCategory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // @ts-ignore - user is added by passport middleware
-    const userId = req.user._id;
+    const userId = req.user?._id;
     const { id } = req.params;
 
     const category = await Category.findOne({ _id: id, user: userId });
@@ -162,10 +174,9 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
  * @param req - Express request object
  * @param res - Express response object
  */
-export const createDefaultCategories = async (req: Request, res: Response): Promise<void> => {
+export const createDefaultCategories = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // @ts-ignore - user is added by passport middleware
-    const userId = req.user._id;
+    const userId = req.user?._id;
 
     const defaultCategories = [
       { name: 'Food & Dining', color: '#FF6B6B', icon: 'pi pi-utensils' },
@@ -195,6 +206,46 @@ export const createDefaultCategories = async (req: Request, res: Response): Prom
     });
   } catch (error) {
     console.error('Create default categories error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+/**
+ * Toggle category active status (admin only)
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const toggleCategoryStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role !== 'admin') {
+      res.status(403).json({ message: 'Forbidden: Admins only' });
+      return;
+    }
+
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== 'boolean') {
+      res.status(400).json({ message: 'isActive must be a boolean' });
+      return;
+    }
+
+    const category = await Category.findById(id);
+    
+    if (!category) {
+      res.status(404).json({ message: 'Category not found' });
+      return;
+    }
+
+    category.isActive = isActive;
+    await category.save();
+
+    res.json({
+      message: `Category ${isActive ? 'activated' : 'deactivated'} successfully`,
+      category
+    });
+  } catch (error) {
+    console.error('Toggle category status error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 }; 

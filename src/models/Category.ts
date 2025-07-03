@@ -42,13 +42,13 @@ const CategorySchema = new Schema<ICategory>({
 });
 
 // Indexes for better query performance
-CategorySchema.index({ user: 1, isActive: 1 });
+CategorySchema.index({ isActive: 1 });
 CategorySchema.index(
-  { user: 1, name: 1, isActive: 1 },
+  { name: 1, isActive: 1 },
   { unique: true, partialFilterExpression: { isActive: true } }
 );
 
-// Pre-save middleware to ensure unique category names per user
+// Pre-save middleware to ensure unique category names
 CategorySchema.pre('save', async function(next) {
   if (this.isModified('name')) {
     const existingCategory = await mongoose.model('Category').findOne({

@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import expenseRoutes from './routes/expenses';
 import categoryRoutes from './routes/category';
+import notificationRoutes from './routes/notification';
 import adminRoutes from './routes/admin';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './configs/swagger';
@@ -33,6 +34,7 @@ app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/expenses', expenseRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/notification', notificationRoutes);
 app.use('/admin', adminRoutes);
 
 // Swagger
