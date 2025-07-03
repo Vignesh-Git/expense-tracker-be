@@ -1,10 +1,13 @@
 import { Router } from 'express';
-import { getAllUsers, getUserById } from '../controllers/userController';
+import {
+  getAllUsers,
+  getUserById,
+} from '../controllers/userController';
 
 const router = Router();
 
 /**
- * User routes
+ * User Routes
  * GET /users - Get all users (admin only)
  * GET /users/:id - Get user by ID
  */
@@ -15,4 +18,4 @@ router.get('/', getAllUsers);
 // Get user by ID
 router.get('/:id', getUserById);
 
-export default router; 
+export default router;
