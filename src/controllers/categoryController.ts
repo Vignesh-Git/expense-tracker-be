@@ -8,13 +8,7 @@ import Category from '../models/Category';
  */
 export const getCategories = async (req: Request, res: Response): Promise<void> => {
   try {
-    // @ts-ignore - user is added by passport middleware
-    const userId = req.user._id;
-
-    const categories = await Category.find({ user: userId, isActive: true })
-      .sort({ name: 1 })
-      .lean();
-
+    const categories = await Category.find({ isActive: true }).sort({ name: 1 }).lean();
     res.json(categories);
   } catch (error) {
     console.error('Get categories error:', error);
@@ -54,34 +48,28 @@ export const getCategoryById = async (req: Request, res: Response): Promise<void
  */
 export const createCategory = async (req: Request, res: Response): Promise<void> => {
   try {
-    // @ts-ignore - user is added by passport middleware
-    const userId = req.user._id;
+    // @ts-ignore
+    if (req.user?.role !== 'admin') {
+      res.status(403).json({ message: 'Forbidden: Admins only' });
+      return;
+    }
     const { name, color, icon } = req.body;
-
-    // Validate required fields
     if (!name || !color) {
       res.status(400).json({ message: 'Name and color are required' });
       return;
     }
-
-    // Check if category name already exists for this user
-    const existingCategory = await Category.findOne({ user: userId, name });
+    const existingCategory = await Category.findOne({ name });
     if (existingCategory) {
       res.status(400).json({ message: 'Category name already exists' });
       return;
     }
-
-    // Create category
     const category = new Category({
-      user: userId,
       name,
       color,
       icon: icon || 'pi pi-tag',
       isActive: true
     });
-
     await category.save();
-
     res.status(201).json({
       message: 'Category created successfully',
       category

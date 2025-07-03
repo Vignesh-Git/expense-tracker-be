@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface ICategory extends Document {
-  user: Types.ObjectId;
   name: string;
   color: string;
   icon: string;
@@ -11,12 +10,6 @@ export interface ICategory extends Document {
 }
 
 const CategorySchema = new Schema<ICategory>({
-  user: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true,
-    index: true 
-  },
   name: { 
     type: String, 
     required: true,
@@ -59,13 +52,12 @@ CategorySchema.index(
 CategorySchema.pre('save', async function(next) {
   if (this.isModified('name')) {
     const existingCategory = await mongoose.model('Category').findOne({
-      user: this.user,
       name: this.name,
       _id: { $ne: this._id }
     });
     
     if (existingCategory) {
-      return next(new Error('Category name already exists for this user'));
+      return next(new Error('Category name already exists'));
     }
   }
   next();
