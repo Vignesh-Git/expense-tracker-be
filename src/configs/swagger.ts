@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'ExpenseSync API',
+      title: 'ExpenSync API',
       version: '1.0.0',
-      description: 'API documentation for ExpenseSync authentication and user management',
+      description: 'API documentation for ExpenSync authentication and user management',
     },
     servers: [
       { url: 'http://localhost:5000' },
