@@ -84,7 +84,23 @@ Ensure MongoDB is running on your system:
 mongod
 ```
 
-### 5. Run the Application
+### 5. Admin User Setup
+
+The application automatically creates an admin user when the server starts for the first time. You can also manually create the admin user using the seed script:
+
+```bash
+# Run the admin seed script
+npm run seed:admin
+```
+
+**Default Admin Credentials:**
+- **Email**: `admin@gmail.com`
+- **Password**: `admin`
+- **Role**: `admin`
+
+> **Note**: The password is securely hashed using bcrypt with 12 salt rounds. The admin user is created automatically on first server startup, or you can run the seed script manually.
+
+### 6. Run the Application
 
 #### Development Mode
 ```bash
@@ -216,6 +232,7 @@ curl -X GET http://localhost:5000/expenses \
 - Basic user information (name, email, password)
 - Role-based access (user/admin)
 - Profile management
+- **Default Admin User**: Created automatically with email `admin@gmail.com` and password `admin`
 
 ### Expense
 - Amount, description, date
@@ -248,6 +265,7 @@ npm run dev      # Start development server
 npm run build    # Build TypeScript to JavaScript
 npm start        # Start production server
 npm test         # Run tests (not implemented yet)
+npm run seed:admin # Create admin user manually
 ```
 
 ### Code Style
