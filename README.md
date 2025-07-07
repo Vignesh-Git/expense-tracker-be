@@ -23,7 +23,6 @@ A robust Node.js/Express.js backend API for the ExpenseSync expense tracking app
   - Approve/deny expense requests
   - View all users and manage them
 - **Notifications**: Real-time notifications for approvals/denials
-- **File Uploads**: Attach receipts to expenses
 - **API Documentation**: Swagger UI at `/api-docs`
 
 ---
@@ -260,7 +259,6 @@ curl -X GET http://localhost:5000/expenses \
 ### Expense
 - Amount, description, date
 - Category association
-- Receipt attachments
 - Approval status
 - User ownership
 
