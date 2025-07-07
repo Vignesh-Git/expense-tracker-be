@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { getAdminAnalytics, getAdminRecentExpenses, getAdminPendingApprovals } from '../controllers/adminController';
+import { getAdminAnalytics, getAdminRecentExpenses, getAdminPendingApprovals, getAdminAllExpenses } from '../controllers/adminController';
 
 const router = express.Router();
 
@@ -62,5 +62,19 @@ router.get('/recent-expenses', getAdminRecentExpenses);
  *         description: Forbidden
  */
 router.get('/pending-approvals', getAdminPendingApprovals);
+
+/**
+ * @swagger
+ * /admin/all-expenses:
+ *   get:
+ *     summary: Get all expenses (admin)
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: List of all expenses
+ *       403:
+ *         description: Forbidden
+ */
+router.get('/all-expenses', getAdminAllExpenses);
 
 export default router; 

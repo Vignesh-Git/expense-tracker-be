@@ -75,4 +75,48 @@ export const getAdminPendingApprovals = async (req: Request, res: Response) => {
     console.error('Admin pending approvals error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
+};
+
+// GET /admin/all-expenses
+export const getAdminAllExpenses = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 10, approvalStatus, search, category, paymentMethod, sortBy = 'date', sortOrder = 'desc' } = req.query;
+    const filter: any = {};
+    if (approvalStatus && approvalStatus !== 'all') filter['approval.status'] = approvalStatus;
+    if (category) filter.category = category;
+    if (paymentMethod) filter.paymentMethod = paymentMethod;
+    if (search) {
+      filter.$or = [
+        { description: { $regex: search, $options: 'i' } },
+        { 'user.name': { $regex: search, $options: 'i' } },
+        { 'user.email': { $regex: search, $options: 'i' } }
+      ];
+    }
+    const sort: any = {};
+    sort[sortBy as string] = sortOrder === 'desc' ? -1 : 1;
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const expenses = await Expense.find(filter)
+      .populate('user', 'name email')
+      .populate('category', 'name color icon')
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit as string))
+      .lean();
+    const total = await Expense.countDocuments(filter);
+    const totalPages = Math.ceil(total / parseInt(limit as string));
+    res.json({
+      expenses,
+      pagination: {
+        currentPage: parseInt(page as string),
+        totalPages,
+        totalItems: total,
+        hasNextPage: parseInt(page as string) < totalPages,
+        hasPrevPage: parseInt(page as string) > 1,
+        itemsPerPage: parseInt(limit as string)
+      }
+    });
+  } catch (error) {
+    console.error('Admin all expenses error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 }; 

@@ -154,8 +154,8 @@ export const createExpense = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    // Check if category exists and belongs to user
-    const categoryExists = await Category.findOne({ _id: category, user: userId });
+    // Check if category exists (global)
+    const categoryExists = await Category.findOne({ _id: category });
     if (!categoryExists) {
       res.status(400).json({ message: 'Invalid category' });
       return;
@@ -235,11 +235,23 @@ export const updateExpense = async (req: Request, res: Response): Promise<void> 
     const { id } = req.params;
     const updateData = req.body;
 
-    // Check if expense exists and belongs to user
-    const existingExpense = await Expense.findOne({ _id: id, user: userId });
+    // Allow admin to update any expense, users only their own
+    let existingExpense;
+    // @ts-ignore
+    if (req.user.role === 'admin') {
+      existingExpense = await Expense.findOne({ _id: id });
+    } else {
+      existingExpense = await Expense.findOne({ _id: id, user: userId });
+    }
     if (!existingExpense) {
       res.status(404).json({ message: 'Expense not found' });
       return;
+    }
+
+    // If a user (not admin) edits, reset approval status
+    // @ts-ignore
+    if (req.user.role !== 'admin') {
+      updateData.approval = { status: 'requested', description: '' };
     }
 
     // Validate amount if provided
@@ -248,9 +260,9 @@ export const updateExpense = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    // Check if category exists and belongs to user (if category is being updated)
+    // Check if category exists (global) if category is being updated
     if (updateData.category) {
-      const categoryExists = await Category.findOne({ _id: updateData.category, user: userId });
+      const categoryExists = await Category.findOne({ _id: updateData.category });
       if (!categoryExists) {
         res.status(400).json({ message: 'Invalid category' });
         return;
@@ -318,7 +330,8 @@ export const getExpenseAnalytics = async (req: Request, res: Response): Promise<
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
-          date: { $gte: start, $lte: end }
+          date: { $gte: start, $lte: end },
+          'approval.status': 'approved'
         }
       },
       {
@@ -335,7 +348,8 @@ export const getExpenseAnalytics = async (req: Request, res: Response): Promise<
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
-          date: { $gte: start, $lte: end }
+          date: { $gte: start, $lte: end },
+          'approval.status': 'approved'
         }
       },
       {
@@ -368,7 +382,8 @@ export const getExpenseAnalytics = async (req: Request, res: Response): Promise<
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
-          date: { $gte: start, $lte: end }
+          date: { $gte: start, $lte: end },
+          'approval.status': 'approved'
         }
       },
       {
@@ -388,7 +403,8 @@ export const getExpenseAnalytics = async (req: Request, res: Response): Promise<
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
-          date: { $gte: start, $lte: end }
+          date: { $gte: start, $lte: end },
+          'approval.status': 'approved'
         }
       },
       {
@@ -411,7 +427,8 @@ export const getExpenseAnalytics = async (req: Request, res: Response): Promise<
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
-          date: { $gte: start, $lte: end }
+          date: { $gte: start, $lte: end },
+          'approval.status': 'approved'
         }
       },
       {
