@@ -1,19 +1,42 @@
 # ExpenseSync Backend API
 
+---
+
+**Frontend Live App:** [https://main.do3xsaggo4ysf.amplifyapp.com/](https://main.do3xsaggo4ysf.amplifyapp.com/)
+
+**Swagger API Docs:** [https://ckhpkdpdca.ap-south-1.awsapprunner.com/api-docs/](https://ckhpkdpdca.ap-south-1.awsapprunner.com/api-docs/)
+
+---
+
 A robust Node.js/Express.js backend API for the ExpenseSync expense tracking application. Built with TypeScript, MongoDB, and JWT authentication.
 
-## 🚀 Features
+---
 
-- **Authentication & Authorization**: JWT-based authentication with Passport.js
-- **User Management**: Complete user CRUD operations with role-based access
-- **Expense Tracking**: Comprehensive expense management with categories
-- **Budget Management**: Budget creation and monitoring
-- **Category Management**: Customizable expense categories
-- **Notification System**: Real-time notifications for expense approvals
-- **Admin Panel**: Administrative functions for user and expense management
-- **API Documentation**: Swagger/OpenAPI documentation
-- **File Upload**: Support for expense receipts and attachments
-- **Session Management**: Secure session handling
+## 🚩 Mandatory Features
+
+- **User Authentication & Roles**: JWT-based login, registration, and role-based access (user/admin)
+- **Expense Management**: Add, edit, delete, and list expenses with categories, payment methods, and recurring options
+- **Category Management**: Custom categories for expenses
+- **Budget Tracking**: Set and monitor budgets per category
+- **Admin Panel**:
+  - View and filter all users' expenses
+  - Approve/deny expense requests
+  - View all users and manage them
+- **Notifications**: Real-time notifications for approvals/denials
+- **File Uploads**: Attach receipts to expenses
+- **API Documentation**: Swagger UI at `/api-docs`
+
+---
+
+## 👤 Default Admin Credentials
+
+- **Email**: `admin@gmail.com`
+- **Password**: `admin`
+- **Role**: `admin`
+
+> The admin user is auto-created on first server start or by running `npm run seed:admin`.
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -118,7 +141,7 @@ The server will start on `http://localhost:5000`
 ## 📚 API Documentation
 
 ### Swagger UI
-Access the interactive API documentation at: `http://localhost:5000/api-docs`
+Access the interactive API documentation at: [https://ckhpkdpdca.ap-south-1.awsapprunner.com/api-docs/](https://ckhpkdpdca.ap-south-1.awsapprunner.com/api-docs/)
 
 ### API Endpoints
 
